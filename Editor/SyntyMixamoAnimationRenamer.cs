@@ -8,7 +8,7 @@ namespace MixamoAssetPreprocessor
 {
     public class MixamoAnimationRenamePostProcessor : AssetPostprocessor
     {
-        void OnPreprocessModel()
+        void OnPreprocessAnimation()
         {
             if (!assetPath.StartsWith("Assets/Animation/Animations/Synty/Mixamo") || Path.GetExtension(assetPath) != ".fbx")
             {
@@ -22,20 +22,19 @@ namespace MixamoAssetPreprocessor
                 return;
             }
 
-
-            var animations = modelImporter.defaultClipAnimations;
-            
+            // Don't overwrite already imported models/animations
             if (modelImporter.clipAnimations.Length > 0)
             {
-                animations = modelImporter.clipAnimations;
+                return;
             }
-            
-            foreach (var clip in animations)
+
+            foreach (var clip in modelImporter.defaultClipAnimations)
             {
                 if (clip.name == "mixamo.com")
                 {
                     clip.name = SplitAtCaptialLetter(Path.GetFileNameWithoutExtension(assetPath));
                     modelImporter.clipAnimations = new[] { clip };
+                    break;
                 }
             }
         }
