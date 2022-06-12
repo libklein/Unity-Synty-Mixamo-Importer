@@ -2,14 +2,15 @@ using System;
 using System.IO;
 using System.Text;
 using UnityEditor;
+using UnityEngine;
 
 namespace MixamoAssetPreprocessor
 {
     public class MixamoAnimationRenamePostProcessor : AssetPostprocessor
     {
-        void OnPreprocessAnimation()
+        void OnPreprocessModel()
         {
-            if (!assetPath.StartsWith("Assets/Animation/Animations/Mixamo") || Path.GetExtension(assetPath) != ".fbx")
+            if (!assetPath.StartsWith("Assets/Animation/Animations/Synty/Mixamo") || Path.GetExtension(assetPath) != ".fbx")
             {
                 return;
             }
@@ -21,23 +22,22 @@ namespace MixamoAssetPreprocessor
                 return;
             }
 
-            foreach (var clip in modelImporter.defaultClipAnimations)
+
+            var animations = modelImporter.defaultClipAnimations;
+            
+            if (modelImporter.clipAnimations.Length > 0)
+            {
+                animations = modelImporter.clipAnimations;
+            }
+            
+            foreach (var clip in animations)
             {
                 if (clip.name == "mixamo.com")
                 {
                     clip.name = SplitAtCaptialLetter(Path.GetFileNameWithoutExtension(assetPath));
-                    modelImporter.clipAnimations = new[] { ConfigureMixamo(clip) };
+                    modelImporter.clipAnimations = new[] { clip };
                 }
             }
-        }
-
-        private static ModelImporterClipAnimation ConfigureMixamo(ModelImporterClipAnimation clip)
-        {
-            clip.loopTime = true;
-            clip.lockRootRotation = true;
-            clip.lockRootHeightY = true;
-            clip.lockRootPositionXZ = true;
-            return clip;
         }
 
         private static String SplitAtCaptialLetter(string input)
